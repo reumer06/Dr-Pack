@@ -1,6 +1,8 @@
-module h_s;
-    initial begin
-         $display("Hello S0N");
-         $finish;
-    end
-endmodule
+module router (
+    input wire clk,
+    input wire reset,
+    input wire in_valid,
+
+    input wire [1:0] in_addr,
+    input wire [1:0] in_data,
+)
