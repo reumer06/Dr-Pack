@@ -17,4 +17,4 @@ module router (
 
     output reg[7:0] outData3,
     output reg outValid3,
-)
+);
