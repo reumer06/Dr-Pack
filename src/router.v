@@ -1,10 +1,20 @@
 module router (
     input wire clk,
     input wire reset,
-    input wire in_valid,
+    input wire inValid,
 
-    input wire [1:0] in_addr,
-    input wire [7:0] in_data,
+    input wire [1:0] inAddr,
+    input wire [7:0] inData,
 
-    output reg [7:0] out_data_0,
+    output reg [7:0] outData0,
+    output reg outValid0,
+
+    output reg[7:0] outData1,
+    output reg outValid1,
+
+    output reg[7:0] outData2,
+    output reg outValid2,
+
+    output reg[7:0] outData3,
+    output reg outValid3,
 )
