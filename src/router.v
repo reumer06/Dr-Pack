@@ -32,12 +32,12 @@ module router(
             outValid1 <= 1'b0;
             outValid2 <= 1'b0;
             outValid3 <= 1'b0;
-
+            // if incoming packet is valid
             if (isValid) begin
                 case(inAddr)
                     2'b00 : begin
-                        outData0  <= inData;
-                        outValid0 <= 1'b1;
+                        outData0  <= inData; // route data to port 0
+                        outValid0 <= 1'b1; // assert valid flag for port 0
                     end
                     2'b01 : begin
                         outData1  <= inData;
