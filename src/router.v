@@ -19,4 +19,19 @@ module router (
     output reg outValid3
 );
 
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            // clear all data registers and valid flags
+            outData0  <= 8'h00; outValid0 <= 1'b0;
+            outData1  <= 8'h00; outValid1 <= 1'b0;
+            outData2  <= 8'h00; outValid2 <= 1'b0;
+            outData3  <= 8'h00; outValid3 <= 1'b0;
+        end else begin 
+            // lower all valid flags
+            outValid0 <= 1'b0;
+            outValid1 <= 1'b0;
+            outValid2 <= 1'b0;
+            outValid3 <= 1'b0;
+        end
+    end
 endmodule
