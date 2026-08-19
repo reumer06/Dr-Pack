@@ -1,7 +1,7 @@
 module router (
     input wire clk,
     input wire reset,
-    input wire inValid,
+    input wire isValid,
 
     input wire [1:0] inAddr,
     input wire [7:0] inData,
@@ -32,6 +32,27 @@ module router (
             outValid1 <= 1'b0;
             outValid2 <= 1'b0;
             outValid3 <= 1'b0;
+
+        if (isValid) begin
+            case(inAddr)
+        2'b00 : begin
+            outData0 <= inData;
+            outValid0 <= 1'b1;
+        end
+        2'b01 : begin 
+            outData1 <= inData;
+            outValid1 <= 1'b1;
+        end
+        2'b10 : begin
+            outData2 <= inData;
+            outValid2 <= 1'b1;
+        end
+        2'b11 : begin 
+            outData3 <= inData;
+            outValid3 <= 1'b1;
+        end
+            endcase
+            end
         end
     end
 endmodule
