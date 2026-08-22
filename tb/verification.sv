@@ -56,8 +56,9 @@ class Env;
         // pop the oldest expected value 
         expected = queues[port].pop_front();
 
-        if (acutal !== expected) begin
+        if (actual !== expected) begin
             $display("ERROR: Port %0d Mismatch | Expected 0x%0h, Got 0x%0h",port,expected,actual);
+            errors++;
         end else begin
             $display("SUCCESS: Port %0d Match found (0x%0h)",port,actual);
         end 
