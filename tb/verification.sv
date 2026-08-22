@@ -42,4 +42,24 @@ class Env;
             end
         end
     endtask
+
+    function void checkData(int port,bit [7:0] actual);
+        bit [7:0] expected;
+
+        // if queue is empty
+        if(queues[port].size() == 0) begin
+            $display("ERROR: UNEXPECTED DATA 0x%0h RECIEVED ON PORT %0d",actual,port);
+            errors++;
+            return;
+        end
+
+        // pop the oldest expected value 
+        expected = queues[port].pop_front();
+
+        if (acutal !== expected) begin
+            $display("ERROR: Port %0d Mismatch | Expected 0x%0h, Got 0x%0h",port,expected,actual);
+        end else begin
+            $display("SUCCESS: Port %0d Match found (0x%0h)",port,actual);
+        end 
+    endfunction
 endclass
