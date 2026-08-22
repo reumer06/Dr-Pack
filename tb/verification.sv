@@ -16,11 +16,13 @@ class Env;
             pkt = new();
             if(!pkt.randomize()) $fatal("Randomization failed");
 
+            // sync with positive clock edge
             @(posedge vif.clk);
             vif.isValid <= 1'b1;
             vif.inAddr <= pkt.destination;
             vif.inData <= pkt.payload;
 
+            // push expected payload to queue 
             queues[pkt.destination].push_back(pkt.payload);
             pkt.display("DRIVER SEND");
 
