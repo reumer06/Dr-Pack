@@ -19,4 +19,10 @@ module main;
         .outData2(inf.outData[2]), .outValid2(inf.outValid[2]),
         .outData3(inf.outData[3]), .outValid3(inf.outValid[3])
     );  
-    endmodule
+
+    Env env;
+
+    intial begin
+        $dumpfile("sim/mesh.vcd");
+        $dumpvars(0, main);
+endmodule
