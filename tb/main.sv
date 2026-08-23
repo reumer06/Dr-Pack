@@ -4,4 +4,7 @@
 
 module main;
 
-endmodule
+    bit clk; 
+    always #5 clk = ~clk;
+
+    endmodule
