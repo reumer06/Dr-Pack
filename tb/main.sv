@@ -25,4 +25,11 @@ module main;
     intial begin
         $dumpfile("sim/mesh.vcd");
         $dumpvars(0, main);
+
+        inf.reset = 1'b1;
+        inf.isValid = 1'b0;
+        #20;
+        inf.reset = 1'b0;
+
+        env = new(inf);
 endmodule
