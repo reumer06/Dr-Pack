@@ -6,5 +6,17 @@ module main;
 
     bit clk; 
     always #5 clk = ~clk;
+    router_if inf(clk); 
 
+    router dut ( 
+        .clk(inf.clk),
+        .reset(inf.reset),
+        .isValid(inf.isValid),
+        .inAddr(inf.inAddr),
+        .inData(inf.inData),
+        .outData0(inf.outData[0]), .outValid0(inf.outValid[0]),
+        .outData1(inf.outData[1]), .outValid1(inf.outValid[1]),
+        .outData2(inf.outData[2]), .outValid2(inf.outValid[2]),
+        .outData3(inf.outData[3]), .outValid3(inf.outValid[3])
+    );  
     endmodule
