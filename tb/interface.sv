@@ -1,4 +1,4 @@
-interface router(input bit clk);
+interface router_if(input bit clk);
     logic        reset       ;
     logic        isValid     ;
     logic [1: 0] inAddr      ;
