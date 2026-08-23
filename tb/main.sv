@@ -32,4 +32,10 @@ module main;
         inf.reset = 1'b0;
 
         env = new(inf);
+
+        fork 
+            env.runMonitor();
+        join_none
+
+        env.runDriver(50);
 endmodule
