@@ -22,7 +22,7 @@ module main;
 
     Env env;
 
-    intial begin
+    initial begin
         $dumpfile("sim/mesh.vcd");
         $dumpvars(0, main);
 
@@ -38,4 +38,16 @@ module main;
         join_none
 
         env.runDriver(50);
+
+        #100;
+
+        if(env.errors == 0) begin
+            $display("ALL TEST SUCCESSFUL"); 
+        end
+        else begin
+            $display("TEST FAILED: %0d ERRORS",env.errors); 
+        end
+
+        $finish;
+    end
 endmodule
