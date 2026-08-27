@@ -1,11 +1,11 @@
 `timescale 1ns/1ps
 `include "interface.sv"
-`include "verification.sv"
 
 module main;
 
     bit clk; 
     always #5 clk = ~clk;
+
     router_if inf(clk); 
 
     router dut ( 
@@ -20,32 +20,29 @@ module main;
         .outData3(inf.outData[3]), .outValid3(inf.outValid[3])
     );  
 
-    Env env;
+    `include "verification.sv"
 
     initial begin
         $dumpfile("sim/mesh.vcd");
         $dumpvars(0, main);
 
-        inf.reset = 1'b1;
+        inf.reset   = 1'b1;
         inf.isValid = 1'b0;
-        #20;
-        inf.reset = 1'b0;
-
-        env = new(inf);
+        #20; // delay 20 nanoseconds
+        inf.reset   = 1'b0;
 
         fork 
-            env.runMonitor();
+            runMonitor();
         join_none
 
-        env.runDriver(50);
+        runDriver(50);
 
         #100;
 
-        if(env.errors == 0) begin
-            $display("ALL TEST SUCCESSFUL"); 
-        end
-        else begin
-            $display("TEST FAILED: %0d ERRORS",env.errors); 
+        if (errors == 0) begin
+            $display("TESTS PASSED SUCCESSFULLY");
+        end else begin
+            $display("TEST FAILED: %0d ERRORS", errors);
         end
 
         $finish;

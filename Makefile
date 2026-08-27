@@ -8,15 +8,21 @@ INCLUDE := tb/interface.sv tb/packet.sv tb/verification.sv
 
 TARGET := sim/program.vvp
 
+..PHONY: all run waves clean
 all: run
 
-$(TARGET): $(SRC)
-	$(SIM) -o $(TARGET) $(SRC)
+$(TARGET): $(SRC) $(ROV) $(INCLUDE)
+	@mkdir -p sim
+	$(SIM) $(FLAGS) -o $(TARGET) $(ROV) $(SRC)
 
 run: $(TARGET)
-	./$(TARGET)
+	$(VVP) $(TARGET)
 
+waves:
+	@if [ -f sim/mesh.vcd ]; then \
+		gtkwave sim/mesh.vcd & \
+	else \
+		echo "ERROR: sim/mesh.vcd not found	"; \
+	fi
 clean:
-	rm -f $(TARGET)
-
-.PHONY: all run clean
+	rm -rf sim program.vvp program
