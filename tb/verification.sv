@@ -1,68 +1,77 @@
 `include "packet.sv"
 
-class Env;
-    virtual router_if vif;
+bit [7:0] queueMem [0:3][0:255];
+int writePtr [0:3];
+int readPtr [0:3];
+int count  [0:3];
 
-    bit [7:0] queues[4][$];
-    int errors = 0;
+int errors = 0;
 
-    function new(virtual router vif);
-        this.vif = vif;
-    endfunction
+task automatic runDriver(input int packetCount);
+    Packet pkt;
+    int port;
 
-    task runDriver(int packetCount);
-        Packet pkt;
-        for(int i = 0;i < packetCount;++i) begin
-            pkt = new();
-            if(!pkt.randomize()) $fatal("Randomization failed");
+    // Reset pointers
+    for (int k = 0; k < 4; k++) begin
+        writePtr[k] = 0;
+        readPtr[k]  = 0;
+        count[k]    = 0;
+    end
 
-            // sync with positive clock edge
-            @(posedge vif.clk);
-            vif.isValid <= 1'b1;
-            vif.inAddr <= pkt.destination;
-            vif.inData <= pkt.payload;
+    for (int i = 0; i < packetCount; ++i) begin
+        pkt     = new();
+        pkt.randomizePkt();
+        port    = pkt.destination;
 
-            // push expected payload to queue 
-            queues[pkt.destination].push_back(pkt.payload);
-            pkt.display("DRIVER SEND");
+        @(posedge inf.clk); // wait for clock to synchronize signal
+        inf.isValid <= 1'b1;
+        inf.inAddr  <= pkt.destination;
+        inf.inData  <= pkt.payload;
 
-            @(posedge vif.clk);
-            vif.isValid <= 1'b0; 
-        end
-    endtask
+        // Push into array memory
+        queueMem[port][writePtr[port]] = pkt.payload;
+        writePtr[port] = writePtr[port] + 1;
+        count[port]    = count[port] + 1;
 
-    task runMonitor();
-        forever begin
-            @(posedge vif.clk);
-            // check all 4 output channel every clock cycle
-            for(int port = 0;port < 4;port++) begin
-                if(vif.outValid[port]) begin
-                    bit[7:0] captured_payload = vif.outData[port];
-                    $display("MONITOR CATCH || CAPTURED 0x%0h on PORT %0d", captured_payload, port);
-                    checkData(port,captured_payload);
-                end 
+        pkt.display("DRIVER SEND");
+
+        @(posedge inf.clk); 
+        inf.isValid <= 1'b0;
+    end
+endtask
+
+task automatic runMonitor();
+    forever begin
+        @(posedge inf.clk);
+        for (int port = 0; port < 4; port++) begin
+            if (inf.outValid[port]) begin
+                bit [7:0] captured = inf.outData[port];
+                $display("Monitor Catch: CAPTURED 0x%0h on PORT %0d", captured, port);
+                checkData(port, captured);
             end
         end
-    endtask
+    end
+endtask
 
-    function void checkData(int port,bit [7:0] actual);
-        bit [7:0] expected;
+function automatic void checkData(int port, bit [7:0] actual);
+    bit [7:0] expected;
 
-        // if queue is empty
-        if(queues[port].size() == 0) begin
-            $display("ERROR: UNEXPECTED DATA 0x%0h RECIEVED ON PORT %0d",actual,port);
-            errors++;
-            return;
-        end
+    if (count[port] == 0) begin
+        $display("ERROR: Unexpected Data 0x%0h Recieved on Port %0d", actual, port);
+        errors++;
+        return;
+    end
 
-        // pop the oldest expected value 
-        expected = queues[port].pop_front();
+    expected      = queueMem[port][readPtr[port]]; // Fetch oldest data byte from reference queue 
 
-        if (actual !== expected) begin
-            $display("ERROR: Port %0d Mismatch | Expected 0x%0h, Got 0x%0h",port,expected,actual);
-            errors++;
-        end else begin
-            $display("SUCCESS: Port %0d Match found (0x%0h)",port,actual);
-        end 
-    endfunction
-endclass
+    // Update reference queue indices
+    readPtr[port] = readPtr[port] + 1;
+    count[port]   = count[port] - 1;
+
+    if (actual !== expected) begin
+        $display("ERROR: Port %0d Mismatch | Expected 0x%0h, Got 0x%0h", port, expected, actual);
+        errors++;
+    end else begin
+        $display("SUCCESS: Port %0d Match found (0x%0h)", port, actual);
+    end
+endfunction
